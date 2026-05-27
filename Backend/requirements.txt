@@ -1,0 +1,7 @@
+vfastapi
+uvicorn[standard]
+mysql-connector-python
+bcrypt
+python-jose[cryptography]
+python-dotenv
+groq
