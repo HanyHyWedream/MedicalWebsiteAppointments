@@ -1,4 +1,4 @@
-vfastapi
+fastapi
 uvicorn[standard]
 mysql-connector-python
 bcrypt
