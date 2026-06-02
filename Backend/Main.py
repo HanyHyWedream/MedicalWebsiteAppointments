@@ -1,22 +1,22 @@
+import sys
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routes.auth import router as auth_router
 from routes.doctors import router as doctors_router
 from database import get_connection
-import os
 from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
-
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-print("Groq AI client initialized successfully.")
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,7 +25,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth")
 app.include_router(doctors_router, prefix="/api/doctors")
 
-@app.get("/")
+@app.get("/api/health")
 def home():
     return {"message": "Medicare API is running"}
 
@@ -33,16 +33,13 @@ def home():
 async def ai_triage(data: dict):
     user_symptoms = data.get("symptoms", "")
     patient_id = data.get("patient_id")
-
     prompt = f"""
     You are a medical triage assistant. 
     Analyze these symptoms: "{user_symptoms}"
     Task: Respond with ONLY ONE WORD from this exact list: 
     Cardiology, Neurology, Orthopedics, Ophthalmology, Dermatology, Nutrition.
-    
     Constraint: Do not include any other text, punctuation, or formatting.
     """
-
     try:
         response = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
@@ -50,16 +47,12 @@ async def ai_triage(data: dict):
             max_tokens=10,
             temperature=0,
         )
-
         ai_word = response.choices[0].message.content.strip()
         clean_word = ai_word.split()[-1].replace('.', '').capitalize()
-        print(f"DEBUG | Raw: {ai_word} -> Cleaned: {clean_word}")
-
         if patient_id:
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
             try:
-                # Get the actual patient_id from the patients table
                 cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (patient_id,))
                 patient = cursor.fetchone()
                 if patient:
@@ -74,8 +67,13 @@ async def ai_triage(data: dict):
             finally:
                 cursor.close()
                 conn.close()
-
         return {"ai_response": clean_word}
     except Exception as e:
-        print(f"AI ERROR: {e}")
         return {"error": "AI Service unavailable", "details": str(e)}
+
+if getattr(sys, 'frozen', False):
+    DIST_DIR = os.path.join(sys._MEIPASS, "dist")
+else:
+    DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist")
+
+app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static")

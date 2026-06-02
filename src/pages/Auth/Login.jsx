@@ -24,13 +24,11 @@ function Login() {
                 setError(data.detail || 'Login failed')
                 return
             }
-            // Save to localStorage
             localStorage.setItem('token', data.token)
             localStorage.setItem('user_id', data.user_id)
             localStorage.setItem('role', data.role)
             localStorage.setItem('full_name', data.full_name)
 
-            // Redirect based on role
             if (data.role === 'admin') navigate('/admin')
             else navigate('/')
         } catch (err) {

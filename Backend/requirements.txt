@@ -1,7 +1,9 @@
 fastapi
-uvicorn[standard]
+uvicorn
 mysql-connector-python
-bcrypt
-python-jose[cryptography]
 python-dotenv
 groq
+bcrypt
+passlib
+python-jose
+pydantic

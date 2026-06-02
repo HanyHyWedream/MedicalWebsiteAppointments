@@ -25,3 +25,9 @@ dist-ssr
 
 .env
 Backend/.env
+.env
+__pycache__/
+node_modules/
+dist/
+*.exe
+*.spec

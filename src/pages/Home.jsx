@@ -31,7 +31,7 @@ function Home() {
         </div>
       </section>
 
-      {/* AI Teaser */}
+      
       <section className="ai-teaser">
         <h2>Not Sure Which Doctor to See?</h2>
         <p>Describe your symptoms and our AI will guide you to the right specialization instantly.</p>
