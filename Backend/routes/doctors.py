@@ -19,7 +19,6 @@ class ReviewCreate(BaseModel):
     rating: int
     comment: str
 
-# --- GET ALL DOCTORS ---
 @router.get("/")
 def get_doctors():
     conn = get_connection()
@@ -40,7 +39,49 @@ def get_doctors():
         cursor.close()
         conn.close()
 
-# --- GET DOCTOR REVIEWS ---
+
+@router.get("/my-appointments")
+def get_my_appointments(payload: dict = Depends(decode_token)):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (payload["user_id"],))
+        patient = cursor.fetchone()
+        if not patient:
+            raise HTTPException(status_code=404, detail="Patient not found")
+
+        cursor.execute("""
+            SELECT a.appointment_id, u.full_name AS doctor_name, d.doctor_id,
+                   s.name AS specialization, t.slot_date, a.status
+            FROM appointments a
+            JOIN doctors d ON a.doctor_id = d.doctor_id
+            JOIN users u ON d.user_id = u.user_id
+            JOIN specializations s ON d.specialization_id = s.specialization_id
+            JOIN time_slots t ON a.slot_id = t.slot_id
+            WHERE a.patient_id = %s
+            ORDER BY t.slot_date DESC
+        """, (patient["patient_id"],))
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@router.put("/appointments/{appointment_id}/complete")
+def complete_appointment(appointment_id: int, payload: dict = Depends(decode_token)):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            UPDATE appointments SET status = 'completed' WHERE appointment_id = %s
+        """, (appointment_id,))
+        conn.commit()
+        return {"message": "Appointment marked as completed"}
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @router.get("/{doctor_id}/reviews")
 def get_reviews(doctor_id: int):
     conn = get_connection()
@@ -98,7 +139,7 @@ def add_review(review: ReviewCreate, payload: dict = Depends(decode_token)):
         cursor.close()
         conn.close()
 
-# --- BOOK APPOINTMENT ---
+
 @router.post("/book")
 def book_appointment(data: dict, payload: dict = Depends(decode_token)):
     conn = get_connection()
@@ -126,48 +167,6 @@ def book_appointment(data: dict, payload: dict = Depends(decode_token)):
 
         conn.commit()
         return {"message": "Appointment booked successfully", "appointment_id": appointment_id}
-    finally:
-        cursor.close()
-        conn.close()
-
-# --- GET MY APPOINTMENTS ---
-@router.get("/my-appointments")
-def get_my_appointments(payload: dict = Depends(decode_token)):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    try:
-        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (payload["user_id"],))
-        patient = cursor.fetchone()
-        if not patient:
-            raise HTTPException(status_code=404, detail="Patient not found")
-
-        cursor.execute("""
-            SELECT a.appointment_id, u.full_name AS doctor_name, d.doctor_id,
-                   s.name AS specialization, t.slot_date, a.status
-            FROM appointments a
-            JOIN doctors d ON a.doctor_id = d.doctor_id
-            JOIN users u ON d.user_id = u.user_id
-            JOIN specializations s ON d.specialization_id = s.specialization_id
-            JOIN time_slots t ON a.slot_id = t.slot_id
-            WHERE a.patient_id = %s
-            ORDER BY t.slot_date DESC
-        """, (patient["patient_id"],))
-        return cursor.fetchall()
-    finally:
-        cursor.close()
-        conn.close()
-
-# --- MARK APPOINTMENT AS COMPLETED ---
-@router.put("/appointments/{appointment_id}/complete")
-def complete_appointment(appointment_id: int, payload: dict = Depends(decode_token)):
-    conn = get_connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            UPDATE appointments SET status = 'completed' WHERE appointment_id = %s
-        """, (appointment_id,))
-        conn.commit()
-        return {"message": "Appointment marked as completed"}
     finally:
         cursor.close()
         conn.close()

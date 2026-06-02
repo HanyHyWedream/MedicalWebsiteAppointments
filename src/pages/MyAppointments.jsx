@@ -11,7 +11,7 @@ function MyAppointments() {
     const token = localStorage.getItem('token')
 
     useEffect(() => {
-        if (!token) { navigate('/login'); return }
+        if (!token) { navigate('/Register'); return }
         fetchAppointments()
     }, [])
 
@@ -19,6 +19,11 @@ function MyAppointments() {
         const res = await fetch('http://127.0.0.1:8000/api/doctors/my-appointments', {
             headers: { Authorization: `Bearer ${token}` }
         })
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            navigate('/Register')
+            return
+        }
         const data = await res.json()
         setAppointments(data)
     }
@@ -28,6 +33,11 @@ function MyAppointments() {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` }
         })
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            navigate('/Register')
+            return
+        }
         if (res.ok) fetchAppointments()
         else alert('Failed to update status')
     }
@@ -48,6 +58,11 @@ function MyAppointments() {
                     comment
                 })
             })
+            if (res.status === 401) {
+                localStorage.removeItem('token')
+                navigate('/Register')
+                return
+            }
             const data = await res.json()
             if (res.ok) {
                 alert('Review submitted successfully!')

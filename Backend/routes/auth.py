@@ -11,7 +11,7 @@ security = HTTPBearer()
 
 SECRET_KEY = "medicare_secret_key_2024"
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_HOURS = 24
+TOKEN_EXPIRE_HOURS = 8
 
 class RegisterUser(BaseModel):
     full_name: str

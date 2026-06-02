@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from routes.auth import router as auth_router
 from routes.doctors import router as doctors_router
 from database import get_connection
@@ -24,6 +25,11 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(doctors_router, prefix="/api/doctors")
+
+if getattr(sys, 'frozen', False):
+    DIST_DIR = os.path.join(sys._MEIPASS, "dist")
+else:
+    DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist")
 
 @app.get("/api/health")
 def home():
@@ -71,9 +77,14 @@ async def ai_triage(data: dict):
     except Exception as e:
         return {"error": "AI Service unavailable", "details": str(e)}
 
-if getattr(sys, 'frozen', False):
-    DIST_DIR = os.path.join(sys._MEIPASS, "dist")
-else:
-    DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist")
+# Serve static assets (JS, CSS, images)
+app.mount("/assets", StaticFiles(directory=os.path.join(DIST_DIR, "assets")), name="assets")
 
-app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static")
+# Catch-all for React Router — must be last
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    return FileResponse(os.path.join(DIST_DIR, "index.html"))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
