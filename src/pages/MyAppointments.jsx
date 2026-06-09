@@ -10,11 +10,14 @@ function MyAppointments() {
     const navigate = useNavigate()
     const token = localStorage.getItem('token')
 
+
+    // take them to login if no token is there 
     useEffect(() => {
         if (!token) { navigate('/Register'); return }
         fetchAppointments()
     }, [])
-
+ 
+    // the specific user gets his appontments
     const fetchAppointments = async () => {
         const res = await fetch('http://127.0.0.1:8000/api/doctors/my-appointments', {
             headers: { Authorization: `Bearer ${token}` }

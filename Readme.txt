@@ -4,7 +4,7 @@ MediCare - Installation Guide
 
 REQUIREMENTS:
 ------------
-- MySQL Server 8.0 installed and running
+- MySQL Server 8.0 installed 
 
 FIRST TIME SETUP (Run Once)
 ----------------------------

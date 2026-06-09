@@ -18,7 +18,7 @@ class ReviewCreate(BaseModel):
     appointment_id: int
     rating: int
     comment: str
-
+# get doctors also join because info is scattered in different tables
 @router.get("/")
 def get_doctors():
     conn = get_connection()

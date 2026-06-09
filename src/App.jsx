@@ -10,7 +10,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import MyAppointments from './pages/MyAppointments'
 
-// Protected route - only logged in users can access
+// Protected route only logged in users can access if a token is found
 function ProtectedRoute({ element }) {
   const token = localStorage.getItem('token')
   return token ? element : <Navigate to="/login" />

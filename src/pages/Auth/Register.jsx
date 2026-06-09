@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../../styles/Register.css'
 
+
+// custom built dropdown so i can make import the flags from flagcdn.com , select doesnt work
 const countryCodes = [
   { code: '+961', country: 'Lebanon',      flag: 'lb' },
   { code: '+20',  country: 'Egypt',        flag: 'eg' },
@@ -31,6 +33,10 @@ const countryCodes = [
 ]
 
 function Register() {
+
+  // these are constant the user never chooses whats his role its consistent theyll be a patient 
+
+
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -39,10 +45,10 @@ function Register() {
     role: 'patient'
   })
   const [selected, setSelected] = useState(countryCodes[0])
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false) // its initial state and stored values
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const dropdownRef = useRef(null)
+  const dropdownRef = useRef(null) // reference to the dropdown element activities 
   const navigate = useNavigate()
 
   // Close dropdown when clicking outside

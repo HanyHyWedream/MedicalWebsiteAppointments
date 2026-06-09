@@ -26,10 +26,11 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth")
 app.include_router(doctors_router, prefix="/api/doctors")
 
+# depends on how the app is being ran
 if getattr(sys, 'frozen', False):
     DIST_DIR = os.path.join(sys._MEIPASS, "dist")
 else:
-    DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist")
+    DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist") 
 
 @app.get("/api/health")
 def home():
@@ -80,11 +81,12 @@ async def ai_triage(data: dict):
 # Serve static assets (JS, CSS, images)
 app.mount("/assets", StaticFiles(directory=os.path.join(DIST_DIR, "assets")), name="assets")
 
-# Catch-all for React Router — must be last
+# Catch-all for React Router must be last
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
     return FileResponse(os.path.join(DIST_DIR, "index.html"))
 
+# for local deployment
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)

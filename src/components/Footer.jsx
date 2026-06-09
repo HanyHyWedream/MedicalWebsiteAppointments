@@ -19,7 +19,7 @@ function Footer() {
         <div className="footer-links">
           <h4>Contact</h4>
           <p>support@medicare.com</p>
-          <p>+1 (800) 123 4567</p>
+          <p>+961 123 4567</p>
         </div>
       </div>
       <div className="footer-bottom">

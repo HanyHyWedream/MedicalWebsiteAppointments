@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../../styles/Login.css'
 
+// handles the state of the page when user logs in 
+
 function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -9,6 +11,8 @@ function Login() {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
+
+          // sending post request to the backend  if user logs in the storage saves the patient info so if he decides to navigate he doesnt need to type the credentials always 
     const handleLogin = async (e) => {
         e.preventDefault()
         setError('')
@@ -29,6 +33,8 @@ function Login() {
             localStorage.setItem('role', data.role)
             localStorage.setItem('full_name', data.full_name)
 
+
+            // the admin base but it will always take us to the patient page for now
             if (data.role === 'admin') navigate('/admin')
             else navigate('/')
         } catch (err) {

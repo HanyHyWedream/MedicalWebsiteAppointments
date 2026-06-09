@@ -1,11 +1,14 @@
 import '../styles/Home.css'
 import { Link } from 'react-router-dom'
+ 
+
+// linking in the end to the booking page as cta
 
 function Home() {
   return (
     <div className="home">
 
-      {/* Hero Section */}
+      {/* Text section */}
       <section className="hero">
         <div className="hero-text">
           <h1>Your Health, <span>Our Priority</span></h1>
@@ -17,7 +20,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section, not links just offers*/}
       <section className="services">
         <h2>Our Specializations</h2>
         <p className="section-sub">Find the right doctor for your needs</p>

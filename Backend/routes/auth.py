@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 router = APIRouter()
 security = HTTPBearer()
 
-SECRET_KEY = "medicare_secret_key_2024"
+SECRET_KEY = "medicare_secret_key_2026"
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 8
 
@@ -33,6 +33,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     pwd_bytes = plain_password.encode('utf-8')[:72]
     return bcrypt.checkpw(pwd_bytes, hashed_password.encode('utf-8'))
 
+# the payload packages the 3 inputs jwt takes it gives it the secret key and stores it.
 def create_token(user_id: int, role: str) -> str:
     payload = {
         "user_id": user_id,
@@ -41,6 +42,7 @@ def create_token(user_id: int, role: str) -> str:
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
+# decoding the token as it does a triple check
 def decode_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
@@ -48,6 +50,8 @@ def decode_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
+
+# dependency func.
 def require_admin(payload: dict = Depends(decode_token)):
     if payload.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admins only")
@@ -58,6 +62,7 @@ def require_patient(payload: dict = Depends(decode_token)):
         raise HTTPException(status_code=403, detail="Patients only")
     return payload
 
+# registering user 
 @router.post("/register")
 def register(user: RegisterUser):
     conn = get_connection()
@@ -109,3 +114,6 @@ def login(user: LoginUser):
     finally:
         cursor.close()
         conn.close()
+
+        
+                

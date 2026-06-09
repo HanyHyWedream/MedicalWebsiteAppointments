@@ -12,7 +12,8 @@ const specializationIcons = {
 
 function Doctors() {
   const [doctors, setDoctors] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) 
+  // because were bringing it from the db i want it to load now . keeping it open so patients can see these doctors , the reviews (stars review) and they can build trust with the servies offered and ensure they'll get good treatment.
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/doctors/')
